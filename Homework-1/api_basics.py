@@ -1,6 +1,4 @@
-# Note: I am using the course Llama Server through the UTSA VPN primarily due to mostly on this assignment at home.
-
-# Part 1: API Basics
+# Part 1: API Basics (Using OpenAI API)
 
 """
 Write a Python script that demonstrates basic API interaction with your chosen provider:
@@ -10,44 +8,69 @@ Write a Python script that demonstrates basic API interaction with your chosen p
     4. Write a main() function that demonstrates your query function with at least 3 different prompts and prints the responses.
 """
 
+import os
 import time
-import random
 import requests
 
-def query_llm(prompt, temperature=0.7, max_tokens=100):
-    url = "https://nam11.safelinks.protection.outlook.com/?url=http%3A%2F%2F10.246.100.230%2Fv1&data=05%7C02%7Csamantha.salas%40my.utsa.edu%7C23962e618e6148bbafb908de65bd62f9%7C3a228dfbc64744cb88357b20617fc906%7C0%7C0%7C639060061245754978%7CUnknown%7CTWFpbGZsb3d8eyJFbXB0eU1hcGkiOnRydWUsIlYiOiIwLjAuMDAwMCIsIlAiOiJXaW4zMiIsIkFOIjoiTWFpbCIsIldUIjoyfQ%3D%3D%7C0%7C%7C%7C&sdata=bXIXYFtkn9YwnUMyagLSQ1dpbNCvG2cf9CVfszCX8EA%3D&reserved=0"
+API_KEY = os.environ.get("OPENAI_API_KEY", "")
+
+def query_llm(prompt, temperature=0.7, max_tokens=100, max_retries=3):
+    url = "https://api.openai.com/v1/chat/completions"
 
     headers = {
-        "Authorization": "Bearer gpustack_095f5cb316bc4b95_fe15f283c2d7de79dd258ca70635bb66",
+        "Authorization": f"Bearer {API_KEY}", # Because of this, run `export OPENAI_API_KEY='your-key-here'` in your terminal before running the script.
         "Content-Type": "application/json"
     }
 
     data = {
-        "prompt": prompt,
+        "model": "gpt-4o-mini",
+        "messages": [{"role": "user", "content": prompt}],
         "temperature": temperature,
         "max_tokens": max_tokens
     }
 
-    #Here is the retry mechanism with exponential backof for transitent failures. v
+    # Retry mechanism with exponential backoff for transient failures
+    for attempt in range(max_retries):
+        try:
+            response = requests.post(url, json=data, headers=headers, timeout=30)
+            response.raise_for_status()
+            return response.json()["choices"][0]["message"]["content"]
+        except requests.exceptions.HTTPError as http_err:
+            status = http_err.response.status_code if http_err.response else None
+            if status == 401:
+                print(f"Authentication error: {http_err}")
+                return None
+            elif status == 429:
+                wait = 2 ** attempt
+                print(f"Rate limited. Retrying in {wait}s... (attempt {attempt + 1}/{max_retries})")
+                time.sleep(wait)
+            else:
+                print(f"HTTP error occurred: {http_err}")
+                return None
+        except requests.exceptions.ConnectionError as conn_err:
+            wait = 2 ** attempt
+            print(f"Connection error. Retrying in {wait}s... (attempt {attempt + 1}/{max_retries})")
+            time.sleep(wait)
+        except requests.exceptions.Timeout as timeout_err:
+            wait = 2 ** attempt
+            print(f"Timeout. Retrying in {wait}s... (attempt {attempt + 1}/{max_retries})")
+            time.sleep(wait)
+        except requests.exceptions.RequestException as req_err:
+            print(f"An error occurred: {req_err}")
+            return None
 
-    try:
-        response = requests.post(url, json=data, headers=headers)
-        response.raise_for_status()  # Check for HTTP errors
-        return response.json().get("response", "")
-    except requests.exceptions.HTTPError as http_err:
-        print(f"HTTP error occurred: {http_err}")
-    except requests.exceptions.ConnectionError as conn_err:
-        print(f"Connection error occurred: {conn_err}")
-    except requests.exceptions.Timeout as timeout_err:
-        print(f"Timeout error occurred: {timeout_err}")
-    except requests.exceptions.RequestException as req_err:
-        print(f"An error occurred: {req_err}")
+    print("Max retries exceeded.")
     return None
 
 def main():
+    if not API_KEY:
+        print("Error: Set OPENAI_API_KEY environment variable before running.")
+        print("  export OPENAI_API_KEY='your-key-here'")
+        return
+
     prompts = [
         "What is the capital of France?",
-        "Explain the theory of relativity in simple terms.",
+        "Explain Singular Value Decomposition in simple terms.",
         "Write a short poem about the ocean."
     ]
 
@@ -58,4 +81,8 @@ def main():
         else:
             print(f"Failed to get a response for prompt: {prompt}\n")
 
-if __name__ == "__main__":    main()
+if __name__ == "__main__":
+    main()
+
+
+# line
