@@ -14,7 +14,7 @@ import requests
 
 API_KEY = os.environ.get("OPENAI_API_KEY", "")
 
-def query_llm(prompt, temperature=0.7, max_tokens=100, max_retries=3):
+def query_llm(prompt, temperature=0.7, max_tokens=4098, max_retries=3):
     url = "https://api.openai.com/v1/chat/completions"
 
     headers = {
