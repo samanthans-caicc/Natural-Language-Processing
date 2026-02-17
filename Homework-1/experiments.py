@@ -50,10 +50,10 @@ def main():
 
     # Define prompting strategies for Question Answering
     qa_strategies = {
-        "zero_shot": lambda inp: f"Answer the following question based on the context.: {inp['context']}\nQuestion: {inp['question']}",
-        "few_shot": lambda inp: f"Here are some examples of answering questions based on context:\nExample 1:\nContext: The capital of France is Paris.\nQuestion: What is the capital of France?\nAnswer: Paris\nExample 2:\nContext: The largest mammal is the blue whale.\nQuestion: What is the largest mammal?\nAnswer: The blue whale\nNow, answer the following question.: {inp['context']}\nQuestion: {inp['question']}",
-        "chain_of_thought": lambda inp: f"Answer the following question step-by-step.: {inp['context']}\nQuestion: {inp['question']}\nAnswer:",
-        "role_playing": lambda inp: f"You are a helpful assistant. Answer the following question based on the context.: {inp['context']}\nQuestion: {inp['question']}"
+        "zero_shot": lambda inp: f"Given the following passage, extract the relevant information and answer the question. Limit your response to 50 words.\nPassage: {inp['context']}\nQuery: {inp['question']}",
+        "few_shot": lambda inp: f"Task: Extractive question answering. Given a passage, answer the query using only information present in the text.\n\nExample 1:\nPassage: The capital of France is Paris.\nQuery: What is the capital of France?\nAnswer: Paris.\n\nExample 2:\nPassage: The largest mammal is the blue whale.\nQuery: What is the largest mammal?\nAnswer: The blue whale.\n\nNow answer the following. Limit your response to 50 words.\nPassage: {inp['context']}\nQuery: {inp['question']}",
+        "chain_of_thought": lambda inp: f"Given the passage below, identify the key claims, isolate the relevant evidence, and derive your answer step-by-step. Limit your response to 50 words.\nPassage: {inp['context']}\nQuery: {inp['question']}\nReasoning:",
+        "role_playing": lambda inp: f"You are an information retrieval system optimized for precision. Given a passage and a query, return only the most relevant answer supported by the text. Limit your response to 50 words.\nPassage: {inp['context']}\nQuery: {inp['question']}"
     }
 
     # Define prompting strategies for Reasoning Problems
@@ -61,7 +61,7 @@ def main():
         "zero_shot": lambda inp: f"Solve the following problem. \n{inp['problem']}",
         "few_shot": lambda inp: f"Here are some examples of solving reasoning problems:\nExample 1:\nProblem: If all cats are animals and all animals are living things, are all cats living things?\nAnswer: Yes\nExample 2:\nProblem: If a car travels 60 miles in 1 hour, how far does it travel in 30 minutes?\nAnswer: 30 miles\nNow, solve the following problem. \n{inp['problem']}",
         "chain_of_thought": lambda inp: f"Solve the following problem step-by-step. \n{inp['problem']}\nAnswer:",
-        "role_playing": lambda inp: f"You are a brilliant logician. Solve the following problem. \n{inp['problem']}"
+        "role_playing": lambda inp: f"Solve the following problem. Explain to a 10-year-old. \n{inp['problem']}"
     }
 
     # Run experiments for Question Answering
@@ -70,9 +70,10 @@ def main():
         for inp in qa_inputs:
             prompt = strategy_func(inp)
             start_time = time.time()
-            response = query_llm(prompt)
+            response, usage = query_llm(prompt)
             end_time = time.time()
-            print(f"Prompt:\n{prompt}\nResponse:\n{response}\nTime taken: {end_time - start_time:.2f} seconds\n")
+            print(f"Prompt:\n{prompt}\nResponse:\n{response}\nTime taken: {end_time - start_time:.2f} seconds")
+            print(f"Tokens used: {usage.get('total_tokens', 'N/A')} (prompt: {usage.get('prompt_tokens', 'N/A')}, completion: {usage.get('completion_tokens', 'N/A')})\n")
 
     # Run experiments for Reasoning Problems
     for strategy_name, strategy_func in reasoning_strategies.items():
@@ -80,9 +81,10 @@ def main():
         for inp in reasoning_inputs:
             prompt = strategy_func(inp)
             start_time = time.time()
-            response = query_llm(prompt)
+            response, usage = query_llm(prompt)
             end_time = time.time()
-            print(f"Prompt:\n{prompt}\nResponse:\n{response}\nTime taken: {end_time - start_time:.2f} seconds\n")
+            print(f"Prompt:\n{prompt}\nResponse:\n{response}\nTime taken: {end_time - start_time:.2f} seconds")
+            print(f"Tokens used: {usage.get('total_tokens', 'N/A')} (prompt: {usage.get('prompt_tokens', 'N/A')}, completion: {usage.get('completion_tokens', 'N/A')})\n")
 
 
 if __name__ == "__main__":

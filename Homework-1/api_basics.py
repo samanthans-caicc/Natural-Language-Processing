@@ -34,19 +34,22 @@ def query_llm(prompt, temperature=0.7, max_tokens=4098, max_retries=3):
         try:
             response = requests.post(url, json=data, headers=headers, timeout=30)
             response.raise_for_status()
-            return response.json()["choices"][0]["message"]["content"]
+            result = response.json()
+            content = result["choices"][0]["message"]["content"]
+            usage = result.get("usage", {})
+            return content, usage
         except requests.exceptions.HTTPError as http_err:
             status = http_err.response.status_code if http_err.response else None
             if status == 401:
                 print(f"Authentication error: {http_err}")
-                return None
+                return None, {}
             elif status == 429:
                 wait = 2 ** attempt
                 print(f"Rate limited. Retrying in {wait}s... (attempt {attempt + 1}/{max_retries})")
                 time.sleep(wait)
             else:
                 print(f"HTTP error occurred: {http_err}")
-                return None
+                return None, {}
         except requests.exceptions.ConnectionError as conn_err:
             wait = 2 ** attempt
             print(f"Connection error. Retrying in {wait}s... (attempt {attempt + 1}/{max_retries})")
@@ -60,7 +63,7 @@ def query_llm(prompt, temperature=0.7, max_tokens=4098, max_retries=3):
             return None
 
     print("Max retries exceeded.")
-    return None
+    return None, {}
 
 def main():
     if not API_KEY:
@@ -75,7 +78,7 @@ def main():
     ]
 
     for prompt in prompts:
-        response = query_llm(prompt)
+        response, usage = query_llm(prompt)
         if response:
             print(f"Prompt: {prompt}\nResponse: {response}\n")
         else:
