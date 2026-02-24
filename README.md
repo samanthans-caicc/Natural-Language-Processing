@@ -8,4 +8,4 @@ For a cleaner environment (I guess), a venv might be needed to be activated each
 2. Activate the environment: `source venv/bin/activate`
 
 ## LLM Debate with Judge Pipeline (Assignment 2)
-Due to the requirements of the assignment being a separate repository, please refer to the [I'm an inline-style link with title]((https://github.com/samanthans-caicc/LLM-Debate-With-Judge-Pipeline)) repository for assignment 2 code.
+Due to the requirements of the assignment being a separate repository, please refer to the [LLM Debate with Judge Pipelinging](https://github.com/samanthans-caicc/LLM-Debate-With-Judge-Pipeline "LLM Debate with Judge Pipelinging") repository for assignment 2 code.
