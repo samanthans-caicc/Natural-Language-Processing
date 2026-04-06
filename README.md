@@ -12,4 +12,4 @@ Due to the requirements of the assignment being a separate repository, please re
 
 ## Sequential Instruction Tuning of a Small LLM with Strong-Model Judge Evaluation (Assignment 3)
 Due to the requirements of the assignment being a separate repository, please refer to the [Sequential Instruction Tuning of a Small LLM
-with Strong-Model Judge Evaluation](https://github.com/samanthans-caicc/fluffy-umbrella) repository for assignment 3 code. Please note that the repoisitory name is `fluffy-umbrella`. It currently acts as a placeholder name for convenience. 
+with Strong-Model Judge Evaluation](https://github.com/samanthans-caicc/Sequential-Instruction-Fine-Tuning-of-a-Small-LLM) repository for assignment 3 code.
