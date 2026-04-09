@@ -13,3 +13,6 @@ Due to the requirements of the assignment being a separate repository, please re
 ## Sequential Instruction Tuning of a Small LLM with Strong-Model Judge Evaluation (Assignment 3)
 Due to the requirements of the assignment being a separate repository, please refer to the [Sequential Instruction Tuning of a Small LLM
 with Strong-Model Judge Evaluation](https://github.com/samanthans-caicc/Sequential-Instruction-Fine-Tuning-of-a-Small-LLM) repository for assignment 3 code.
+
+## Assignment 4 (UPCOMING)
+This assignment will also be in its own repository.
