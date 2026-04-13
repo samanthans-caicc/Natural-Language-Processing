@@ -16,3 +16,6 @@ with Strong-Model Judge Evaluation](https://github.com/samanthans-caicc/Sequenti
 
 ## Assignment 4 (UPCOMING)
 This assignment will also be in its own repository.
+
+## Project: HippoRAG Recreation (IN PROGRESS)
+This project has its own repository. It is located here: [HippoRAG Recreational Project](https://github.com/samanthans-caicc/HippoRAG-Recreational-Project). 
